@@ -19,7 +19,7 @@ function getWeatherIcon(code) {
 
 function getTempIcon(temp) {
     if (temp <= 0) return "🧥";
-    if (temp <= 12) return "👖";
+    if (temp < 12) return "👖";
     if (temp <= 18) return "🩳";
     if (temp <= 25) return "🔥";
     return "💀";
