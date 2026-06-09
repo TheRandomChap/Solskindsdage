@@ -1,6 +1,7 @@
 const todayBox = document.getElementById("today");
 const grid = document.getElementById("grid");
 const loading = document.getElementById("loading");
+
 grid.innerHTML = "2 Sek, Snakker lige med vejrstationen...";
 
 function getWeatherIcon(code) {
@@ -26,90 +27,98 @@ function getTempIcon(temp) {
 }
 
 fetch("https://api.open-meteo.com/v1/forecast?latitude=55.78&longitude=11.66&daily=weather_code&hourly=apparent_temperature&current=apparent_temperature,weather_code&past_days=1&forecast_days=16")
-    .then(response => response.json())
-    .then(data => {
-        const times = data.daily.time;
-        const codes = data.daily.weather_code;
-        const hourlyTimes = data.hourly.time;
-        const hourlyTemps = data.hourly.apparent_temperature;
+.then(response => response.json())
+.then(data => {
 
-// Gennemsnitlig temperatur hver dag (08:00-20:00)
-        const dailyAverages = {};
+    const times = data.daily.time;
+    const codes = data.daily.weather_code;
+    const hourlyTimes = data.hourly.time;
+    const hourlyTemps = data.hourly.apparent_temperature;
+
+    grid.innerHTML = "";
+    loading.style.display = "none";
+
+    // ----------------------------
+    // DAILY AVERAGE (08–20)
+    // ----------------------------
+    const dailyAverages = {};
 
     for (let i = 0; i < hourlyTimes.length; i++) {
 
-        const time = new Date(hourlyTimes[i]);
-        const hour = time.getHours();
-        const dateStr = hourlyTimes[i].split("T")[0];
+        const dateKey = hourlyTimes[i].split("T")[0];
+        const hour = new Date(hourlyTimes[i]).getHours();
 
-    if (hour >= 8 && hour <= 20) {
+        if (hour >= 8 && hour <= 20) {
 
-        if (!dailyAverages[dateStr]) {
-            dailyAverages[dateStr] = {
-                sum: 0,
-                count: 0
-            };
-        }
-        dailyAverages[dateStr].sum += hourlyTemps[i];
-        dailyAverages[dateStr].count++;
-    }
-}
-
-// Convert sums into averages
-    for (const date in dailyAverages) {
-        dailyAverages[date] =
-            dailyAverages[date].sum /
-            dailyAverages[date].count;
-    }
-        const todayStr = new Date().toISOString().split("T")[0];
-        const todayIndex = times.indexOf(todayStr);
-        const currentTemp = data.current.apparent_temperature;
-        grid.innerHTML = "";
-        loading.style.display = "none";
-
-
-        // I Dag (REAL-TID)
-        if (todayIndex !== -1) {
-
-            const date = new Date(times[todayIndex]);
-            const day = date.toLocaleDateString("da-DK", { weekday: "long" });
-            const capitalisedDay = day.charAt(0).toUpperCase() + day.slice(1);
-            const icon = getWeatherIcon(data.current.weather_code);
-            const tempIcon = getTempIcon(currentTemp);
-            const tempDisplay = `${tempIcon} ${Math.round(temp)}°C`;
-
-            todayBox.innerHTML = `
-                <div class="tile today">
-                    ${icon}<br>
-                    I dag<br>
-                    ${capitalisedDay}<br>
-                    ${tempDisplay}
-                </div>`;
-        }
-
-        // GRID (Udsigt)
-        for (let i = 0; i < times.length; i++) {
-            if (i === todayIndex) continue;
-            const date = new Date(times[i]);
-            const day = date.toLocaleDateString("da-DK", { weekday: "short" });
-            const capitalisedDay = day.charAt(0).toUpperCase() + day.slice(1);
-            const dayNum = date.getDate();
-            const month = date.getMonth() + 1;
-            const avgTemp = dailyAverages[times[i]];
-            const tempIcon = getTempIcon(avgTemp);
-            const icon = getWeatherIcon(codes[i]);
-            let label = `${capitalisedDay} (${dayNum}/${month})`;
-
-            if (codes[i] >= 40) {
-            label = "";
-            
+            if (!dailyAverages[dateKey]) {
+                dailyAverages[dateKey] = { sum: 0, count: 0 };
             }
-            let className = "tile";
-            if (codes[i] < 40) className += " sunny";
-            grid.innerHTML += `<div class="${className}">${icon}<br>${label}</div>`;
+
+            dailyAverages[dateKey].sum += hourlyTemps[i];
+            dailyAverages[dateKey].count++;
         }
-    })
-    .catch(error => {
-        console.error("Weather fetch failed:", error);
-        loading.innerHTML = "Kunne ikke hente vejret 😢";
-    });
+    }
+
+    for (const key in dailyAverages) {
+        dailyAverages[key] =
+            dailyAverages[key].sum / dailyAverages[key].count;
+    }
+
+    const todayStr = new Date().toISOString().split("T")[0];
+    const todayIndex = times.indexOf(todayStr);
+
+    // ----------------------------
+    // TODAY (CURRENT WEATHER)
+    // ----------------------------
+    if (todayIndex !== -1) {
+
+        const date = new Date(times[todayIndex]);
+        const day = date.toLocaleDateString("da-DK", { weekday: "long" });
+        const capitalisedDay = day.charAt(0).toUpperCase() + day.slice(1);
+        const icon = getWeatherIcon(data.current.weather_code);
+        const currentTemp = data.current.apparent_temperature;
+        const tempIcon = getTempIcon(currentTemp);
+        const tempDisplay = `${tempIcon} ${Math.round(currentTemp)}°C`;
+
+        todayBox.innerHTML = `
+            <div class="tile today">
+                ${icon}<br>
+                I dag<br>
+                ${capitalisedDay}<br>
+                ${tempDisplay}
+            </div>`;
+    }
+
+    // ----------------------------
+    // GRID (FORECAST + AVERAGE TEMP)
+    // ----------------------------
+    for (let i = 0; i < times.length; i++) {
+
+        if (i === todayIndex) continue;
+        const date = new Date(times[i]);
+        const day = date.toLocaleDateString("da-DK", { weekday: "short" });
+        const capitalisedDay = day.charAt(0).toUpperCase() + day.slice(1);
+        const dayNum = date.getDate();
+        const month = date.getMonth() + 1;
+        const dateKey = times[i].split("T")[0];
+        const icon = getWeatherIcon(codes[i]);
+        const avgTemp = dailyAverages[dateKey] ?? 15;
+        const tempIcon = getTempIcon(avgTemp);
+        let label = `${capitalisedDay} (${dayNum}/${month})`;
+        if (codes[i] >= 40) {
+            label = "";
+        }
+        let className = "tile";
+        if (codes[i] < 40) className += " sunny";
+        grid.innerHTML += `
+            <div class="${className}">
+                ${tempIcon}${icon}<br>
+                ${label}
+            </div>`;
+    }
+
+})
+.catch(error => {
+    console.error("Weather fetch failed:", error);
+    loading.innerHTML = "Kunne ikke hente vejret 😢";
+});
