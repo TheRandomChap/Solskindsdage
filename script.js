@@ -25,14 +25,45 @@ function getTempIcon(temp) {
     return "💀";
 }
 
-fetch("https://api.open-meteo.com/v1/forecast?latitude=55.7&longitude=11.66&daily=weather_code&current=apparent_temperature,weather_code&timezone=Europe%2FBerlin&past_days=1&forecast_days=16")
+fetch("https://api.open-meteo.com/v1/forecast?latitude=55.78&longitude=11.66&daily=weather_code&hourly=apparent_temperature&current=apparent_temperature,weather_code&past_days=1&forecast_days=16")
     .then(response => response.json())
     .then(data => {
         const times = data.daily.time;
         const codes = data.daily.weather_code;
+        const hourlyTimes = data.hourly.time;
+        const hourlyTemps = data.hourly.apparent_temperature;
+
+// Gennemsnitlig temperatur hver dag (08:00-20:00)
+        const dailyAverages = {};
+
+    for (let i = 0; i < hourlyTimes.length; i++) {
+
+        const time = new Date(hourlyTimes[i]);
+        const hour = time.getHours();
+        const dateStr = hourlyTimes[i].split("T")[0];
+
+    if (hour >= 8 && hour <= 20) {
+
+        if (!dailyAverages[dateStr]) {
+            dailyAverages[dateStr] = {
+                sum: 0,
+                count: 0
+            };
+        }
+        dailyAverages[dateStr].sum += hourlyTemps[i];
+        dailyAverages[dateStr].count++;
+    }
+}
+
+// Convert sums into averages
+    for (const date in dailyAverages) {
+        dailyAverages[date] =
+            dailyAverages[date].sum /
+            dailyAverages[date].count;
+    }
         const todayStr = new Date().toISOString().split("T")[0];
         const todayIndex = times.indexOf(todayStr);
-        const temp = data.current.apparent_temperature;
+        const currentTemp = data.current.apparent_temperature;
         grid.innerHTML = "";
         loading.style.display = "none";
 
@@ -44,7 +75,7 @@ fetch("https://api.open-meteo.com/v1/forecast?latitude=55.7&longitude=11.66&dail
             const day = date.toLocaleDateString("da-DK", { weekday: "long" });
             const capitalisedDay = day.charAt(0).toUpperCase() + day.slice(1);
             const icon = getWeatherIcon(data.current.weather_code);
-            const tempIcon = getTempIcon(temp);
+            const tempIcon = getTempIcon(currentTemp);
             const tempDisplay = `${tempIcon} ${Math.round(temp)}°C`;
 
             todayBox.innerHTML = `
@@ -64,6 +95,8 @@ fetch("https://api.open-meteo.com/v1/forecast?latitude=55.7&longitude=11.66&dail
             const capitalisedDay = day.charAt(0).toUpperCase() + day.slice(1);
             const dayNum = date.getDate();
             const month = date.getMonth() + 1;
+            const avgTemp = dailyAverages[times[i]];
+            const tempIcon = getTempIcon(avgTemp);
             const icon = getWeatherIcon(codes[i]);
             let label = `${capitalisedDay} (${dayNum}/${month})`;
 
