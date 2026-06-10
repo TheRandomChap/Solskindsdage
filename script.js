@@ -101,20 +101,15 @@ fetch("https://api.open-meteo.com/v1/forecast?latitude=55.78&longitude=11.66&dai
     const minTemps = data.daily.apparent_temperature_min;
 
     for (let i = 0; i < times.length; i++) {
-
         if (i === todayIndex) continue;
 
         const date = new Date(times[i]);
         const day = date.toLocaleDateString("da-DK", { weekday: "short" });
         const capitalisedDay = day.charAt(0).toUpperCase() + day.slice(1);
-
         const dayNum = date.getDate();
         const month = date.getMonth() + 1;
-
         const dateKey = times[i].split("T")[0];
-
         const icon = getWeatherIcon(codes[i]);
-
         const avgTemp = dailyAverages[dateKey] ?? 15;
         const tempIcon = getTempIcon(avgTemp);
 
