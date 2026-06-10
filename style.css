@@ -166,3 +166,30 @@ body {
         transform: rotate(360deg);
     }
 }
+
+.popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hidden {
+    display: none;
+}
+
+.popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    min-width: 250px;
+}
+
+#closePopup {
+    float: right;
+    cursor: pointer;
+    font-size: 24px;
+}
