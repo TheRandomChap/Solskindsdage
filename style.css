@@ -47,6 +47,8 @@ body {
 
 }
 
+
+
 @media (max-width: 800px) {
     #grid {
         grid-template-columns: repeat(2, 1fr);
@@ -63,21 +65,23 @@ body {
 
 }
 .tile {
-    background: white;
-    border-radius: 12px;
-    padding: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 12px;
+    margin: 8px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 2.5vh;
-    font-weight: 600;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    opacity: 0.1;
-    transition: transform 0.2s ease;
-    animation: fadeIn 0.4s ease;
-    
+    font-size: 14px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    transition: transform 0.2s ease, background 0.2s ease;
+
 }
+
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
@@ -90,13 +94,17 @@ body {
 
 }
 .sunny:hover {
-    transform: scale(1.05);
+    transform: translateY(-4px) scale(1.03);
+    background: rgba(255, 255, 255, 0.15);
 
 }
 
 .today {
-    border: 0.5vh solid orange;
-    opacity: 1;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    font-size: 22px;
+    font-weight: bold;
+    padding: 20px;
 
 }
 
