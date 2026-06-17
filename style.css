@@ -181,7 +181,7 @@ transform: rotate(360deg);
 }
 
 .popup-content {
-    background: white;
+    background: #ff7c5b;
     padding: 20px;
     border-radius: 15px;
     text-align: center;
