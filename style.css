@@ -9,7 +9,7 @@ font-family: "Nunito", sans-serif;
 margin: 0;
 min-height: 100vh;
 padding: 0;
-background: linear-gradient(130deg, #f2bbf6, #b7d8f9, #a8fba8);
+background: linear-gradient(130deg, #1E104E, #452E5A);
 display: flex;
 flex-direction: column;
 height: 100vh;
@@ -83,7 +83,7 @@ to { opacity: 1; transform: translateY(0); }
 }
 
 .sunny {
-background: #fff7b0;
+background: #FFC85C;
 opacity: 1;
 
 }
@@ -93,7 +93,7 @@ transform: scale(1.05);
 }
 
 .today {
-border: 0.5vh solid orange;
+border: 0.5vh solid #FF653F;
 opacity: 1;
 
 }
