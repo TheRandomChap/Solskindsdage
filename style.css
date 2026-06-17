@@ -84,7 +84,7 @@ to { opacity: 1; transform: translateY(0); }
 
 .sunny {
 background: #FFC85C;
-opacity: 1;
+opacity: 0.90;
 
 }
 .sunny:hover {
@@ -93,7 +93,7 @@ transform: scale(1.05);
 }
 
 .today {
-border: 0.5vh solid #FF653F;
+border: 0.20vh solid #FF653F;
 opacity: 1;
 
 }
@@ -112,7 +112,7 @@ align-items: center;
 }
 
 #today .tile {
-background: #f3d990;
+background: #FFC85C;
 display: flex;
 flex-direction: column;
 justify-content: center;
